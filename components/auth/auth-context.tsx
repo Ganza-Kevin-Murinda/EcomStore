@@ -2,15 +2,24 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import { api, ApiError } from "@/lib/api-client"
 
 export type UserRole = "customer" | "seller"
 
 export interface User {
   id: string
   email: string
-  name: string
+  firstName: string
+  lastName: string
   role: UserRole
-  isVerified: boolean
+  phone?: string
+  address?: {
+    street: string
+    city: string
+    state: string
+    zipCode: string
+    country: string
+  }
 }
 
 interface AuthContextType {
@@ -19,123 +28,101 @@ interface AuthContextType {
   register: (
     email: string,
     password: string,
-    name: string,
+    firstName: string,
+    lastName: string,
     role: UserRole,
   ) => Promise<{ success: boolean; message: string }>
   verifyOTP: (email: string, otp: string) => Promise<{ success: boolean; message: string }>
-  logout: () => void
-  isLoading: boolean
+  logout: () => Promise<void>
+  loading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Mock user data - replace with API calls to your Java backend
-const mockUsers: User[] = [
-  {
-    id: "1",
-    email: "customer@example.com",
-    name: "John Customer",
-    role: "customer",
-    isVerified: true,
-  },
-  {
-    id: "2",
-    email: "seller@example.com",
-    name: "Jane Seller",
-    role: "seller",
-    isVerified: true,
-  },
-]
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-    setIsLoading(false)
+    // Check for existing session
+    checkAuthStatus()
   }, [])
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true)
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock authentication - replace with actual API call
-    const foundUser = mockUsers.find((u) => u.email === email)
-
-    if (foundUser && password === "password123") {
-      setUser(foundUser)
-      localStorage.setItem("user", JSON.stringify(foundUser))
-      setIsLoading(false)
-      return { success: true, message: "Login successful" }
+  const checkAuthStatus = async () => {
+    try {
+      const response = await api.get<{ user: User }>("/api/auth/me")
+      setUser(response.user)
+    } catch (error) {
+      // User not authenticated
+      setUser(null)
+    } finally {
+      setLoading(false)
     }
-
-    setIsLoading(false)
-    return { success: false, message: "Invalid email or password" }
   }
 
-  const register = async (email: string, password: string, name: string, role: UserRole) => {
-    setIsLoading(true)
+  const login = async (email: string, password: string) => {
+    setLoading(true)
+    try {
+      const response = await api.post<{ message: string; user: User }>("/api/auth/login", {
+        email,
+        password,
+      })
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock registration - replace with actual API call
-    const existingUser = mockUsers.find((u) => u.email === email)
-
-    if (existingUser) {
-      setIsLoading(false)
-      return { success: false, message: "Email already exists" }
+      setUser(response.user)
+      setLoading(false)
+      return { success: true, message: response.message }
+    } catch (error) {
+      setLoading(false)
+      const message = error instanceof ApiError ? error.message : "Login failed"
+      return { success: false, message }
     }
+  }
 
-    // Store pending verification
-    localStorage.setItem("pendingVerification", JSON.stringify({ email, password, name, role }))
+  const register = async (email: string, password: string, firstName: string, lastName: string, role: UserRole) => {
+    setLoading(true)
+    try {
+      const response = await api.post<{ message: string; userId: string; otp?: string }>("/api/auth/register", {
+        email,
+        password,
+        firstName,
+        lastName,
+        role,
+      })
 
-    setIsLoading(false)
-    return { success: true, message: "Registration successful. Please check your email for OTP." }
+      setLoading(false)
+      return { success: true, message: response.message }
+    } catch (error) {
+      setLoading(false)
+      const message = error instanceof ApiError ? error.message : "Registration failed"
+      return { success: false, message }
+    }
   }
 
   const verifyOTP = async (email: string, otp: string) => {
-    setIsLoading(true)
+    setLoading(true)
+    try {
+      const response = await api.post<{ message: string }>("/api/auth/verify-otp", {
+        email,
+        otp,
+      })
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock OTP verification - replace with actual API call
-    if (otp === "123456") {
-      const pendingData = localStorage.getItem("pendingVerification")
-      if (pendingData) {
-        const userData = JSON.parse(pendingData)
-        const newUser: User = {
-          id: Date.now().toString(),
-          email: userData.email,
-          name: userData.name,
-          role: userData.role,
-          isVerified: true,
-        }
-
-        setUser(newUser)
-        localStorage.setItem("user", JSON.stringify(newUser))
-        localStorage.removeItem("pendingVerification")
-
-        setIsLoading(false)
-        return { success: true, message: "Account verified successfully" }
-      }
+      setLoading(false)
+      return { success: true, message: response.message }
+    } catch (error) {
+      setLoading(false)
+      const message = error instanceof ApiError ? error.message : "OTP verification failed"
+      return { success: false, message }
     }
-
-    setIsLoading(false)
-    return { success: false, message: "Invalid OTP" }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
+  const logout = async () => {
+    try {
+      await api.post("/api/auth/logout")
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
+      setUser(null)
+    }
   }
 
   return (
@@ -146,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         verifyOTP,
         logout,
-        isLoading,
+        loading,
       }}
     >
       {children}

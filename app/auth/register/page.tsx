@@ -16,7 +16,8 @@ import { ShoppingBag, Eye, EyeOff, User, Store } from "lucide-react"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -42,7 +43,13 @@ export default function RegisterPage() {
       return
     }
 
-    const result = await register(formData.email, formData.password, formData.name, formData.role)
+    const result = await register(
+      formData.email,
+      formData.password,
+      formData.firstName,
+      formData.lastName,
+      formData.role,
+    )
 
     if (result.success) {
       router.push(`/auth/verify-otp?email=${encodeURIComponent(formData.email)}`)
@@ -63,16 +70,29 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  placeholder="First name"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Last name"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-2">

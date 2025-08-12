@@ -1,0 +1,40 @@
+[
+  {
+    "id": "user_customer_1",
+    "email": "customer@demo.com",
+    "password": "cGFzc3dvcmQxMjM=",
+    "role": "customer",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phone": "+1234567890",
+    "address": {
+      "street": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "zipCode": "10001",
+      "country": "USA"
+    },
+    "isVerified": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "user_seller_1",
+    "email": "seller@demo.com",
+    "password": "cGFzc3dvcmQxMjM=",
+    "role": "seller",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "phone": "+1234567891",
+    "address": {
+      "street": "456 Business Ave",
+      "city": "Los Angeles",
+      "state": "CA",
+      "zipCode": "90001",
+      "country": "USA"
+    },
+    "isVerified": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

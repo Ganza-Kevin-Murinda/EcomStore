@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useProducts, type Product } from "@/components/products/product-context"
 import { ShoppingCart, Star, Search, Filter } from "lucide-react"
-import Link from "next/link"
 
 export default function ProductsPage() {
   const { products, addToCart } = useProducts()
@@ -93,7 +92,7 @@ export default function ProductsPage() {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.map((product) => (
             <Card key={product.id} className="group hover:shadow-lg transition-shadow">
               <CardHeader className="p-0">
@@ -105,8 +104,8 @@ export default function ProductsPage() {
                   />
                 </div>
               </CardHeader>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2">
+              <CardContent className="p-3">
+                <div className="flex items-start justify-between mb-1">
                   <Badge variant="secondary" className="capitalize">
                     {product.category}
                   </Badge>
@@ -118,9 +117,9 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                <CardTitle className="text-lg mb-2 line-clamp-1">{product.name}</CardTitle>
+                <CardTitle className="text-lg mb-1 line-clamp-1">{product.name}</CardTitle>
 
-                <CardDescription className="text-sm mb-4 line-clamp-2">{product.description}</CardDescription>
+                <CardDescription className="text-sm mb-2 line-clamp-2">{product.description}</CardDescription>
 
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">

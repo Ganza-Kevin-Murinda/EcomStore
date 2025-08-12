@@ -2,6 +2,8 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import { api, ApiError } from "@/lib/api-client"
+import { useAuth } from "@/components/auth/auth-context"
 
 export interface Product {
   id: string
@@ -11,186 +13,146 @@ export interface Product {
   category: "shoes" | "clothes" | "electronics"
   image: string
   stock: number
-  rating: number
-  reviews: number
+  sellerId: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface CartItem {
-  product: Product
+  id: string
+  userId: string
+  productId: string
   quantity: number
+  createdAt: string
+  product: Product
 }
 
 interface ProductContextType {
   products: Product[]
   cart: CartItem[]
-  addToCart: (product: Product, quantity?: number) => void
-  removeFromCart: (productId: string) => void
-  updateCartQuantity: (productId: string, quantity: number) => void
-  clearCart: () => void
+  loading: boolean
+  error: string | null
+  addToCart: (product: Product, quantity?: number) => Promise<void>
+  removeFromCart: (cartItemId: string) => Promise<void>
+  updateCartQuantity: (cartItemId: string, quantity: number) => Promise<void>
+  clearCart: () => Promise<void>
   getCartTotal: () => number
   getCartItemsCount: () => number
+  fetchProducts: (category?: string, search?: string) => Promise<void>
+  fetchCart: () => Promise<void>
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined)
 
-// Mock product data - replace with API calls to your Java backend
-const mockProducts: Product[] = [
-  // Shoes
-  {
-    id: "1",
-    name: "Nike Air Max 270",
-    description: "Comfortable running shoes with excellent cushioning and modern design.",
-    price: 129.99,
-    category: "shoes",
-    image: "/nike-air-max-running-shoes.png",
-    stock: 25,
-    rating: 4.5,
-    reviews: 128,
-  },
-  {
-    id: "2",
-    name: "Adidas Ultraboost 22",
-    description: "Premium running shoes with responsive cushioning and energy return.",
-    price: 189.99,
-    category: "shoes",
-    image: "/adidas-ultraboost.png",
-    stock: 18,
-    rating: 4.7,
-    reviews: 95,
-  },
-  {
-    id: "3",
-    name: "Converse Chuck Taylor",
-    description: "Classic canvas sneakers perfect for casual wear and street style.",
-    price: 59.99,
-    category: "shoes",
-    image: "/classic-converse.png",
-    stock: 42,
-    rating: 4.3,
-    reviews: 203,
-  },
-
-  // Clothes
-  {
-    id: "4",
-    name: "Levi's 501 Original Jeans",
-    description: "Iconic straight-fit jeans made from premium denim with classic styling.",
-    price: 89.99,
-    category: "clothes",
-    image: "/levis-501-jeans.png",
-    stock: 35,
-    rating: 4.4,
-    reviews: 156,
-  },
-  {
-    id: "5",
-    name: "Nike Dri-FIT T-Shirt",
-    description: "Moisture-wicking athletic t-shirt perfect for workouts and casual wear.",
-    price: 24.99,
-    category: "clothes",
-    image: "/athletic-t-shirt.png",
-    stock: 67,
-    rating: 4.2,
-    reviews: 89,
-  },
-  {
-    id: "6",
-    name: "Patagonia Fleece Jacket",
-    description: "Warm and comfortable fleece jacket perfect for outdoor activities.",
-    price: 149.99,
-    category: "clothes",
-    image: "/cozy-fleece-jacket.png",
-    stock: 22,
-    rating: 4.8,
-    reviews: 74,
-  },
-
-  // Electronics
-  {
-    id: "7",
-    name: "Apple AirPods Pro",
-    description: "Wireless earbuds with active noise cancellation and spatial audio.",
-    price: 249.99,
-    category: "electronics",
-    image: "/placeholder-f0gpp.png",
-    stock: 15,
-    rating: 4.6,
-    reviews: 312,
-  },
-  {
-    id: "8",
-    name: "Samsung Galaxy Watch",
-    description: "Smart watch with fitness tracking, GPS, and long battery life.",
-    price: 329.99,
-    category: "electronics",
-    image: "/generic-smartwatch.png",
-    stock: 12,
-    rating: 4.4,
-    reviews: 87,
-  },
-  {
-    id: "9",
-    name: "Sony WH-1000XM4",
-    description: "Premium noise-canceling headphones with exceptional sound quality.",
-    price: 349.99,
-    category: "electronics",
-    image: "/placeholder-f1927.png",
-    stock: 8,
-    rating: 4.9,
-    reviews: 245,
-  },
-]
-
 export function ProductProvider({ children }: { children: React.ReactNode }) {
-  const [products] = useState<Product[]>(mockProducts)
+  const [products, setProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { user } = useAuth()
 
   useEffect(() => {
-    // Load cart from localStorage
-    const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
-      setCart(JSON.parse(savedCart))
-    }
+    fetchProducts()
   }, [])
 
   useEffect(() => {
-    // Save cart to localStorage
-    localStorage.setItem("cart", JSON.stringify(cart))
-  }, [cart])
+    if (user) {
+      fetchCart()
+    } else {
+      setCart([])
+    }
+  }, [user])
 
-  const addToCart = (product: Product, quantity = 1) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.product.id === product.id)
+  const fetchProducts = async (category?: string, search?: string) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const params = new URLSearchParams()
+      if (category && category !== "all") params.append("category", category)
+      if (search) params.append("search", search)
 
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item,
-        )
-      } else {
-        return [...prevCart, { product, quantity }]
-      }
-    })
+      const response = await api.get<{ products: Product[] }>(`/api/products?${params.toString()}`)
+      setProducts(response.products)
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Failed to fetch products"
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const removeFromCart = (productId: string) => {
-    setCart((prevCart) => prevCart.filter((item) => item.product.id !== productId))
+  const fetchCart = async () => {
+    if (!user) return
+
+    try {
+      const response = await api.get<{ cartItems: CartItem[] }>("/api/cart")
+      setCart(response.cartItems)
+    } catch (error) {
+      console.error("Failed to fetch cart:", error)
+    }
   }
 
-  const updateCartQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId)
+  const addToCart = async (product: Product, quantity = 1) => {
+    if (!user) {
+      setError("Please log in to add items to cart")
       return
     }
 
-    setCart((prevCart) => prevCart.map((item) => (item.product.id === productId ? { ...item, quantity } : item)))
+    try {
+      await api.post("/api/cart", {
+        productId: product.id,
+        quantity,
+      })
+      await fetchCart() // Refresh cart
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Failed to add item to cart"
+      setError(message)
+    }
   }
 
-  const clearCart = () => {
-    setCart([])
+  const removeFromCart = async (cartItemId: string) => {
+    if (!user) return
+
+    try {
+      await api.delete(`/api/cart/${cartItemId}`)
+      await fetchCart() // Refresh cart
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Failed to remove item from cart"
+      setError(message)
+    }
+  }
+
+  const updateCartQuantity = async (cartItemId: string, quantity: number) => {
+    if (!user) return
+
+    if (quantity <= 0) {
+      await removeFromCart(cartItemId)
+      return
+    }
+
+    try {
+      await api.put(`/api/cart/${cartItemId}`, { quantity })
+      await fetchCart() // Refresh cart
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Failed to update cart"
+      setError(message)
+    }
+  }
+
+  const clearCart = async () => {
+    if (!user) return
+
+    try {
+      await api.delete("/api/cart")
+      setCart([])
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : "Failed to clear cart"
+      setError(message)
+    }
   }
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.product.price * item.quantity, 0)
+    return cart.reduce((total, item) => total + (item.product?.price || 0) * item.quantity, 0)
   }
 
   const getCartItemsCount = () => {
@@ -202,12 +164,16 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       value={{
         products,
         cart,
+        loading,
+        error,
         addToCart,
         removeFromCart,
         updateCartQuantity,
         clearCart,
         getCartTotal,
         getCartItemsCount,
+        fetchProducts,
+        fetchCart,
       }}
     >
       {children}

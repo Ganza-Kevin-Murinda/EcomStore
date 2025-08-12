@@ -36,10 +36,10 @@ export default function LoginPage() {
 
   const fillDemoAccount = (accountType: "customer" | "seller") => {
     if (accountType === "customer") {
-      setEmail("customer@example.com")
+      setEmail("customer@demo.com")
       setPassword("password123")
     } else {
-      setEmail("seller@example.com")
+      setEmail("seller@demo.com")
       setPassword("password123")
     }
     setError("")
@@ -123,7 +123,7 @@ export default function LoginPage() {
                 onClick={() => fillDemoAccount("customer")}
               >
                 <User className="h-3 w-3 mr-2" />
-                Customer: customer@example.com
+                Customer: customer@demo.com
               </Button>
               <Button
                 type="button"
@@ -133,7 +133,7 @@ export default function LoginPage() {
                 onClick={() => fillDemoAccount("seller")}
               >
                 <Store className="h-3 w-3 mr-2" />
-                Seller: seller@example.com
+                Seller: seller@demo.com
               </Button>
             </div>
           </div>

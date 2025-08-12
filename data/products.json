@@ -1,0 +1,98 @@
+[
+  {
+    "id": "prod_1",
+    "name": "Nike Air Max Running Shoes",
+    "description": "Comfortable running shoes with excellent cushioning and support for daily training.",
+    "price": 129.99,
+    "category": "shoes",
+    "image": "/nike-air-max-running-shoes.png",
+    "stock": 50,
+    "sellerId": "user_seller_1",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "prod_2",
+    "name": "Adidas Ultraboost",
+    "description": "Premium running shoes with responsive cushioning and energy return technology.",
+    "price": 179.99,
+    "category": "shoes",
+    "image": "/adidas-ultraboost.png",
+    "stock": 30,
+    "sellerId": "user_seller_1",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "prod_3",
+    "name": "Classic Converse Chuck Taylor",
+    "description": "Timeless canvas sneakers perfect for casual wear and street style.",
+    "price": 65.99,
+    "category": "shoes",
+    "image": "/classic-converse.png",
+    "stock": 75,
+    "sellerId": "user_seller_1",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "prod_4",
+    "name": "Levi's 501 Original Jeans",
+    "description": "Classic straight-leg jeans made from premium denim with authentic vintage styling.",
+    "price": 89.99,
+    "category": "clothes",
+    "image": "/levis-501-jeans.png",
+    "stock": 40,
+    "sellerId": "user_seller_1",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "prod_5",
+    "name": "Athletic Performance T-Shirt",
+    "description": "Moisture-wicking athletic shirt perfect for workouts and active lifestyle.",
+    "price": 24.99,
+    "category": "clothes",
+    "image": "/athletic-t-shirt.png",
+    "stock": 100,
+    "sellerId": "user_seller_1",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "prod_6",
+    "name": "iPhone 15 Pro",
+    "description": "Latest iPhone with advanced camera system, A17 Pro chip, and titanium design.",
+    "price": 999.99,
+    "category": "electronics",
+    "image": "/iphone-15-pro.png",
+    "stock": 25,
+    "sellerId": "user_seller_1",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "prod_7",
+    "name": "MacBook Air M3",
+    "description": "Powerful and lightweight laptop with M3 chip, perfect for work and creativity.",
+    "price": 1299.99,
+    "category": "electronics",
+    "image": "/macbook-air-m3.png",
+    "stock": 15,
+    "sellerId": "user_seller_1",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "prod_8",
+    "name": "AirPods Pro",
+    "description": "Premium wireless earbuds with active noise cancellation and spatial audio.",
+    "price": 249.99,
+    "category": "electronics",
+    "image": "/airpods-pro.png",
+    "stock": 60,
+    "sellerId": "user_seller_1",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]
