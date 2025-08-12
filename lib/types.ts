@@ -27,6 +27,8 @@ export interface Product {
   image: string
   stock: number
   sellerId: string
+  rating: number
+  reviews: number
   createdAt: string
   updatedAt: string
 }

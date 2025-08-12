@@ -8,6 +8,8 @@
     "image": "/nike-air-max-running-shoes.png",
     "stock": 50,
     "sellerId": "user_seller_1",
+    "rating": 4.5,
+    "reviews": 127,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   },
@@ -20,6 +22,8 @@
     "image": "/adidas-ultraboost.png",
     "stock": 30,
     "sellerId": "user_seller_1",
+    "rating": 4.8,
+    "reviews": 203,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   },
@@ -32,6 +36,8 @@
     "image": "/classic-converse.png",
     "stock": 75,
     "sellerId": "user_seller_1",
+    "rating": 4.2,
+    "reviews": 89,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   },
@@ -44,6 +50,8 @@
     "image": "/levis-501-jeans.png",
     "stock": 40,
     "sellerId": "user_seller_1",
+    "rating": 4.6,
+    "reviews": 156,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   },
@@ -56,6 +64,8 @@
     "image": "/athletic-t-shirt.png",
     "stock": 100,
     "sellerId": "user_seller_1",
+    "rating": 4.3,
+    "reviews": 74,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   },
@@ -68,6 +78,8 @@
     "image": "/iphone-15-pro.png",
     "stock": 25,
     "sellerId": "user_seller_1",
+    "rating": 4.9,
+    "reviews": 342,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   },
@@ -80,6 +92,8 @@
     "image": "/macbook-air-m3.png",
     "stock": 15,
     "sellerId": "user_seller_1",
+    "rating": 4.7,
+    "reviews": 198,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   },
@@ -92,6 +106,8 @@
     "image": "/airpods-pro.png",
     "stock": 60,
     "sellerId": "user_seller_1",
+    "rating": 4.4,
+    "reviews": 267,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   }
