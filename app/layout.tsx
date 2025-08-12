@@ -2,7 +2,6 @@ import type React from "react"
 import { AuthProvider } from "@/components/auth/auth-context"
 import { ProductProvider } from "@/components/products/product-context"
 import MainNav from "@/components/navigation/main-nav"
-import { ThemeProvider } from "next-themes"
 import "./globals.css"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -36,10 +35,8 @@ export default function RootLayout({
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
         <AuthProvider>
           <ProductProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-              <MainNav />
-              {children}
-            </ThemeProvider>
+            <MainNav />
+            {children}
           </ProductProvider>
         </AuthProvider>
       </body>
