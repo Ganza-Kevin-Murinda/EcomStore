@@ -2,13 +2,40 @@ import nodemailer from "nodemailer"
 
 // Create transporter for Gmail SMTP
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  const user = process.env.EMAIL_USER
+  const pass = process.env.EMAIL_PASS
+
+  if (!user || !pass) {
+    throw new Error("EMAIL_USER and EMAIL_PASS environment variables are required")
+  }
+
+  console.log("Creating email transporter for:", user)
+
+  return nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user,
+      pass,
     },
   })
+}
+
+// Test email configuration
+export async function testEmailConnection() {
+  try {
+    const transporter = createTransporter()
+    await transporter.verify()
+    console.log("Email connection verified successfully")
+    return { success: true, message: "Email connection verified" }
+  } catch (error) {
+    console.error("Email connection test failed:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      details:
+        "Check your EMAIL_USER and EMAIL_PASS environment variables. Make sure you're using a Gmail App Password, not your regular password.",
+    }
+  }
 }
 
 // Send OTP email

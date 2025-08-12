@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { usersDB, otpDB, generateId } from "@/lib/db"
 import { generateOTP } from "@/lib/jwt"
-import { sendOTPEmail } from "@/lib/email"
+import { sendOTPEmail, testEmailConnection } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +17,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
+    // Test email connection first
+    const connectionTest = await testEmailConnection()
+    if (!connectionTest.success) {
+      console.error("Email connection failed:", connectionTest.error)
+      return NextResponse.json(
+        {
+          error: "Email service unavailable",
+          details: "Please check email configuration",
+        },
+        { status: 500 },
+      )
+    }
+
     // Generate new OTP
     const otp = generateOTP()
     const otpRecord = {
@@ -29,17 +42,21 @@ export async function POST(request: NextRequest) {
 
     otpDB.create(otpRecord)
 
+    console.log(`Sending OTP ${otp} to ${email}`)
     const emailResult = await sendOTPEmail(email, otp, `${user.firstName} ${user.lastName}`)
 
     if (!emailResult.success) {
       console.error("Failed to send OTP email:", emailResult.error)
-      // Still return success to user, but log the error
-      return NextResponse.json({
-        message: "OTP generated but email delivery failed. Please check your email configuration.",
-        otp: otp, // Temporary fallback - remove in production
-      })
+      return NextResponse.json(
+        {
+          error: "Failed to send OTP email",
+          details: emailResult.error,
+        },
+        { status: 500 },
+      )
     }
 
+    console.log("OTP email sent successfully:", emailResult.messageId)
     return NextResponse.json({
       message: "OTP sent successfully to your email",
     })
