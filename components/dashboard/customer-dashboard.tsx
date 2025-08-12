@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useAuth } from "@/components/auth/auth-context"
 import { useProducts } from "@/components/products/product-context"
-import { ShoppingCart, Package, Heart, Settings, LogOut, Star, Eye } from "lucide-react"
-import Link from "next/link"
+import { ShoppingCart, Package, Star, Eye, Edit } from "lucide-react"
 
 // Mock order data - replace with API calls to your Java backend
 const mockOrders = [
@@ -38,27 +39,17 @@ const mockOrders = [
   },
 ]
 
-const mockWishlist = [
-  {
-    id: "8",
-    name: "Samsung Galaxy Watch",
-    price: 329.99,
-    image: "/generic-smartwatch.png",
-    category: "electronics",
-  },
-  {
-    id: "6",
-    name: "Patagonia Fleece Jacket",
-    price: 149.99,
-    image: "/cozy-fleece-jacket.png",
-    category: "clothes",
-  },
-]
-
 export default function CustomerDashboard() {
   const { user, logout } = useAuth()
   const { getCartItemsCount, getCartTotal } = useProducts()
   const [activeTab, setActiveTab] = useState("overview")
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [profileData, setProfileData] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: "",
+    address: "",
+  })
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -73,52 +64,43 @@ export default function CustomerDashboard() {
     }
   }
 
+  const handleEditProfile = () => {
+    setIsEditingProfile(true)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditingProfile(false)
+    setProfileData({
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: "",
+      address: "",
+    })
+  }
+
+  const handleSaveProfile = () => {
+    // Mock save - would integrate with backend
+    console.log("Saving profile:", profileData)
+    setIsEditingProfile(false)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center">
-              <ShoppingCart className="h-8 w-8 text-indigo-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">EcomStore</span>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/products">
-                <Button variant="outline">Browse Products</Button>
-              </Link>
-              <Link href="/cart">
-                <Button variant="outline">
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Cart ({getCartItemsCount()})
-                </Button>
-              </Link>
-              <Button variant="ghost" onClick={logout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.name}!</h1>
-          <p className="mt-2 text-gray-600">Manage your orders, profile, and preferences</p>
+          <p className="mt-2 text-gray-600">Manage your orders and profile</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Current Cart</CardTitle>
@@ -138,17 +120,6 @@ export default function CustomerDashboard() {
                 <CardContent>
                   <div className="text-2xl font-bold">{mockOrders.length}</div>
                   <p className="text-xs text-muted-foreground">Lifetime orders</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Wishlist Items</CardTitle>
-                  <Heart className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{mockWishlist.length}</div>
-                  <p className="text-xs text-muted-foreground">Saved for later</p>
                 </CardContent>
               </Card>
             </div>
@@ -244,123 +215,89 @@ export default function CustomerDashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="wishlist" className="space-y-6">
+          <TabsContent value="profile" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Your Wishlist</CardTitle>
-                <CardDescription>Items you've saved for later</CardDescription>
+                <CardTitle>Profile Information</CardTitle>
+                <CardDescription>Update your personal details</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {mockWishlist.map((item) => (
-                    <div key={item.id} className="border rounded-lg p-4">
-                      <div className="aspect-square mb-4 overflow-hidden rounded-lg">
-                        <img
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <h3 className="font-semibold mb-2">{item.name}</h3>
-                      <p className="text-lg font-bold text-indigo-600 mb-4">${item.price}</p>
-                      <div className="flex space-x-2">
-                        <Button size="sm" className="flex-1">
-                          Add to Cart
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          Remove
-                        </Button>
-                      </div>
+              <CardContent className="space-y-4">
+                {!isEditingProfile ? (
+                  <>
+                    <div>
+                      <label className="text-sm font-medium">Full Name</label>
+                      <p className="text-lg">{profileData.name}</p>
                     </div>
-                  ))}
-                </div>
-                {mockWishlist.length === 0 && (
-                  <div className="text-center py-8">
-                    <Heart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Your wishlist is empty</p>
-                    <Link href="/products">
-                      <Button className="mt-4">Browse Products</Button>
-                    </Link>
-                  </div>
+                    <div>
+                      <label className="text-sm font-medium">Email</label>
+                      <p className="text-lg">{profileData.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Phone</label>
+                      <p className="text-lg">{profileData.phone || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Address</label>
+                      <p className="text-lg">{profileData.address || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Account Type</label>
+                      <Badge variant="secondary" className="capitalize">
+                        {user?.role}
+                      </Badge>
+                    </div>
+                    <Button onClick={handleEditProfile}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="grid gap-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input
+                        id="name"
+                        value={profileData.name}
+                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="address">Address</Label>
+                      <Input
+                        id="address"
+                        value={profileData.address}
+                        onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                        placeholder="Enter your address"
+                      />
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button onClick={handleSaveProfile}>Save Changes</Button>
+                      <Button variant="outline" onClick={handleCancelEdit}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="profile" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Information</CardTitle>
-                  <CardDescription>Update your personal details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Full Name</label>
-                    <p className="text-lg">{user?.name}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Email</label>
-                    <p className="text-lg">{user?.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Account Type</label>
-                    <Badge variant="secondary" className="capitalize">
-                      {user?.role}
-                    </Badge>
-                  </div>
-                  <Button>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Account Settings</CardTitle>
-                  <CardDescription>Manage your account preferences</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Email Notifications</p>
-                      <p className="text-sm text-gray-500">Receive order updates via email</p>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Privacy Settings</p>
-                      <p className="text-sm text-gray-500">Control your data and privacy</p>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Payment Methods</p>
-                      <p className="text-sm text-gray-500">Manage saved payment methods</p>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Shipping Addresses</p>
-                      <p className="text-sm text-gray-500">Manage delivery addresses</p>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
         </Tabs>
       </main>

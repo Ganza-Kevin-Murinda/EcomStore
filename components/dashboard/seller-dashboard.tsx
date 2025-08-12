@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useAuth } from "@/components/auth/auth-context"
-import { Package, DollarSign, TrendingUp, Plus, Edit, Trash2, Eye, Settings } from "lucide-react"
+import { Package, DollarSign, TrendingUp, Plus, Edit, Trash2, Eye } from "lucide-react"
 
 // Mock seller data - replace with API calls to your Java backend
 const mockSellerProducts = [
@@ -84,10 +84,18 @@ const mockSellerOrders = [
   },
 ]
 
-export default function SellerDashboard() {
+export default function SellerDashboard({ defaultTab = "overview" }: { defaultTab?: string }) {
   const { user, logout } = useAuth()
-  const [activeTab, setActiveTab] = useState("overview")
+  const [activeTab, setActiveTab] = useState(defaultTab)
   const [isAddProductOpen, setIsAddProductOpen] = useState(false)
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [profileData, setProfileData] = useState({
+    storeName: user?.name + "'s Store" || "",
+    email: user?.email || "",
+    phone: "",
+    businessAddress: "",
+    description: "",
+  })
   const [newProduct, setNewProduct] = useState({
     name: "",
     category: "",
@@ -123,6 +131,27 @@ export default function SellerDashboard() {
     console.log("Adding product:", newProduct)
     setIsAddProductOpen(false)
     setNewProduct({ name: "", category: "", price: "", stock: "", description: "" })
+  }
+
+  const handleEditProfile = () => {
+    setIsEditingProfile(true)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditingProfile(false)
+    setProfileData({
+      storeName: user?.name + "'s Store" || "",
+      email: user?.email || "",
+      phone: "",
+      businessAddress: "",
+      description: "",
+    })
+  }
+
+  const handleSaveProfile = () => {
+    // Mock save - would integrate with backend
+    console.log("Saving seller profile:", profileData)
+    setIsEditingProfile(false)
   }
 
   return (
@@ -416,79 +445,101 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="profile" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Seller Profile</CardTitle>
-                  <CardDescription>Update your seller information</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Store Name</label>
-                    <p className="text-lg">{user?.name}'s Store</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Email</label>
-                    <p className="text-lg">{user?.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Account Type</label>
-                    <Badge variant="secondary" className="capitalize">
-                      {user?.role}
-                    </Badge>
-                  </div>
-                  <Button>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Store Settings</CardTitle>
-                  <CardDescription>Manage your store preferences</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
+            <Card>
+              <CardHeader>
+                <CardTitle>Seller Profile</CardTitle>
+                <CardDescription>Update your seller information</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!isEditingProfile ? (
+                  <>
                     <div>
-                      <p className="font-medium">Store Visibility</p>
-                      <p className="text-sm text-gray-500">Make your store public or private</p>
+                      <label className="text-sm font-medium">Store Name</label>
+                      <p className="text-lg">{profileData.storeName}</p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">Payment Settings</p>
-                      <p className="text-sm text-gray-500">Configure payment methods</p>
+                      <label className="text-sm font-medium">Email</label>
+                      <p className="text-lg">{profileData.email}</p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">Shipping Options</p>
-                      <p className="text-sm text-gray-500">Set up shipping rates and zones</p>
+                      <label className="text-sm font-medium">Phone</label>
+                      <p className="text-lg">{profileData.phone || "Not provided"}</p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">Tax Settings</p>
-                      <p className="text-sm text-gray-500">Configure tax rates and rules</p>
+                      <label className="text-sm font-medium">Business Address</label>
+                      <p className="text-lg">{profileData.businessAddress || "Not provided"}</p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Manage
+                    <div>
+                      <label className="text-sm font-medium">Store Description</label>
+                      <p className="text-lg">{profileData.description || "Not provided"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Account Type</label>
+                      <Badge variant="secondary" className="capitalize">
+                        {user?.role}
+                      </Badge>
+                    </div>
+                    <Button onClick={handleEditProfile}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="grid gap-2">
+                      <Label htmlFor="storeName">Store Name</Label>
+                      <Input
+                        id="storeName"
+                        value={profileData.storeName}
+                        onChange={(e) => setProfileData({ ...profileData, storeName: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                        placeholder="Enter your business phone"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="businessAddress">Business Address</Label>
+                      <Input
+                        id="businessAddress"
+                        value={profileData.businessAddress}
+                        onChange={(e) => setProfileData({ ...profileData, businessAddress: e.target.value })}
+                        placeholder="Enter your business address"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="description">Store Description</Label>
+                      <Textarea
+                        id="description"
+                        value={profileData.description}
+                        onChange={(e) => setProfileData({ ...profileData, description: e.target.value })}
+                        placeholder="Describe your store and products"
+                      />
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button onClick={handleSaveProfile}>Save Changes</Button>
+                      <Button variant="outline" onClick={handleCancelEdit}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

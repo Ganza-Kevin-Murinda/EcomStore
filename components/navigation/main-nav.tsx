@@ -15,7 +15,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuth } from "@/components/auth/auth-context"
 import { useProducts } from "@/components/products/product-context"
-import { ShoppingBag, User, LogOut, Menu, Package, BarChart3, Settings, Store, Heart, Search } from "lucide-react"
+import { ShoppingBag, User, LogOut, Menu, Package, BarChart3, Settings, Store, Search } from "lucide-react"
 
 export default function MainNav() {
   const { user, logout } = useAuth()
@@ -31,14 +31,14 @@ export default function MainNav() {
   const customerNavItems = [
     { href: "/products", label: "Products", icon: Search },
     { href: "/cart", label: "Cart", icon: ShoppingBag, badge: getCartItemsCount() },
-    { href: "/dashboard", label: "My Account", icon: User },
+    { href: "/dashboard", label: "Account", icon: User },
   ]
 
   const sellerNavItems = [
     { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
-    { href: "/products", label: "Browse Store", icon: Store },
-    { href: "/dashboard?tab=products", label: "My Products", icon: Package },
-    { href: "/dashboard?tab=orders", label: "Orders", icon: ShoppingBag },
+    { href: "/products", label: "Store", icon: Store },
+    { href: "/seller/products", label: "Products", icon: Package },
+    { href: "/seller/orders", label: "Orders", icon: ShoppingBag },
   ]
 
   const navItems = user?.role === "seller" ? sellerNavItems : customerNavItems
@@ -53,15 +53,15 @@ export default function MainNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              mobile ? "w-full" : ""
+            className={`flex items-center space-x-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              mobile ? "w-full space-x-2 px-3 py-2 text-sm" : ""
             } ${isActive ? "bg-indigo-100 text-indigo-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"}`}
             onClick={() => mobile && setIsMobileMenuOpen(false)}
           >
-            <Icon className="h-4 w-4" />
-            <span>{item.label}</span>
+            <Icon className={mobile ? "h-4 w-4" : "h-3.5 w-3.5"} />
+            <span className="whitespace-nowrap">{item.label}</span>
             {item.badge && item.badge > 0 && (
-              <Badge variant="secondary" className="ml-auto">
+              <Badge variant="secondary" className="ml-auto text-xs">
                 {item.badge}
               </Badge>
             )}
@@ -74,27 +74,27 @@ export default function MainNav() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-14 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <ShoppingBag className="h-8 w-8 text-indigo-600" />
-            <span className="text-xl font-bold text-gray-900">EcomStore</span>
+          <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
+            <ShoppingBag className="h-7 w-7 text-indigo-600" />
+            <span className="text-lg font-bold text-gray-900">EcomStore</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          {/* Desktop Navigation - Made more compact with smaller spacing and text */}
+          <nav className="hidden md:flex items-center space-x-0.5 flex-1 justify-center max-w-2xl">
             <NavItems />
           </nav>
 
           {/* User Menu / Auth Buttons */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
-                    <User className="h-4 w-4" />
-                    <span className="hidden sm:inline">{user.name}</span>
-                    <Badge variant="outline" className="hidden sm:inline capitalize">
+                  <Button variant="ghost" size="sm" className="flex items-center space-x-1">
+                    <User className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline text-xs">{user.name}</span>
+                    <Badge variant="outline" className="hidden sm:inline capitalize text-xs">
                       {user.role}
                     </Badge>
                   </Button>
@@ -111,14 +111,6 @@ export default function MainNav() {
                       {user.role === "seller" ? "Seller Dashboard" : "My Account"}
                     </Link>
                   </DropdownMenuItem>
-                  {user.role === "customer" && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard?tab=wishlist" className="flex items-center">
-                        <Heart className="h-4 w-4 mr-2" />
-                        Wishlist
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard?tab=profile" className="flex items-center">
                       <Settings className="h-4 w-4 mr-2" />
@@ -135,10 +127,12 @@ export default function MainNav() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Link href="/auth/login">
-                  <Button variant="ghost">Sign In</Button>
+                  <Button variant="ghost" size="sm">
+                    Sign In
+                  </Button>
                 </Link>
                 <Link href="/auth/register">
-                  <Button>Get Started</Button>
+                  <Button size="sm">Get Started</Button>
                 </Link>
               </div>
             )}
